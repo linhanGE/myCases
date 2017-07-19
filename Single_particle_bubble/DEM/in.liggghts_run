@@ -22,8 +22,8 @@ fix         m4 all property/global gammat_abs peratomtypepair 2 0.0041 0.0000012
 fix         m5 all property/global coefficientFriction peratomtypepair 2 0.3 0.3 0.3 0.3
 
 # pair style
-pair_style hybrid gran model hooke/stiffness tangential history absolute_damping on limitForce on hydro 5e-10
-pair_coeff * * gran  
+pair_style hybrid gran model hooke/stiffness tangential history absolute_damping on limitForce on hydro 2e-7
+pair_coeff * * gran
 pair_coeff 1 2 hydro 1e-6 6.26e2 0.5e-9
 
 # timestep, gravity
@@ -51,10 +51,10 @@ variable        y2 equal y[2]
 variable        z2 equal z[2]
 variable        time equal step*dt
 
-fix             extra1 all print 1 "${time} ${vx1} ${vy1} ${vz1}" file ../DEM/post/velocity_particle_1.txt title "%" screen no
-fix             extra2 all print 1 "${time} ${vx2} ${vy2} ${vz2}" file ../DEM/post/velocity_particle_2.txt title "%" screen no
-fix             extra3 all print 1 "${time} ${x1}  ${y1}  ${z1}"  file ../DEM/post/position_particle_1.txt title "%" screen no
-fix 		extra4 all print 1 "${time} ${x2} ${y2} ${z2}" file ../DEM/post/position_particle_2.txt title "%" screen no
+fix             extra1 all print 1 "${time} ${vx1} ${vy1} ${vz1}" file ../DEM/post/velocity_particle.txt title "%" screen no
+fix             extra2 all print 1 "${time} ${vx2} ${vy2} ${vz2}" file ../DEM/post/velocity_bubble.txt title "%" screen no
+fix             extra3 all print 1 "${time} ${x1}  ${y1}  ${z1}"  file ../DEM/post/position_particle.txt title "%" screen no
+fix 		extra4 all print 1 "${time} ${x2} ${y2} ${z2}" file ../DEM/post/position_bubble.txt title "%" screen no
 
 # cfd coupling
 fix         cfd all couple/cfd couple_every 10 mpi

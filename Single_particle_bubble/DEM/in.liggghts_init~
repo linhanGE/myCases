@@ -19,10 +19,10 @@ fix         m1 all property/global kn peratomtypepair 2 10000. 0.9 0.9 10000
 fix         m2 all property/global kt peratomtypepair 2 10000. 0.9 0.9 10000  
 fix         m3 all property/global gamman_abs peratomtypepair 2 0.0041 0.0000012 0.0000012 0.000000036
 fix         m4 all property/global gammat_abs peratomtypepair 2 0.0041 0.0000012 0.0000012 0.000000036
-fix         m5 all property/global coefficientFriction peratomtypepair 1 0.3
+fix         m5 all property/global coefficientFriction peratomtypepair 2 0.3 0.3 0.3 0.3
 
 # pair style
-pair_style hybrid gran model hooke/stiffness tangential history absolute_damping on limitForce on hydro 5e-10
+pair_style hybrid gran model hooke/stiffness tangential history absolute_damping on limitForce on hydro 2e-7
 pair_coeff * * gran  
 pair_coeff 1 2 hydro 1e-6 6.26e2 0.5e-9
 
@@ -36,11 +36,10 @@ fix     cylwalls all wall/gran model hooke/stiffness tangential history mesh n_m
 
 # particle distributions and insertion
 
-create_atoms 2 single 0.0 0.0 0.1 units box
 create_atoms 1 single 0.0 0.0 0.1006 units box
-set atom 1 diameter 0.001 density 1.2 vx 0 vy 0 vz 0
-set atom 2 diameter 0.0001 density 1400 vx 0 vy 0 vz 0
-
+create_atoms 2 single 0.0 0.0 0.1 units box
+set type 1 diameter 0.0001 density 1400 vx 0 vy 0 vz 0
+set type 2 diameter 0.001 density 1.2 vx 0 vy 0 vz 0
 # apply nve integration to all particles that are inserted as single particles
 fix     integr all nve/sphere
 
