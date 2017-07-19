@@ -1,0 +1,126 @@
+LIGGGHTS (Version LIGGGHTS-PUBLIC 3.6.0, compiled 2017-06-07-14:24:21 by linhange, git commit 18a96adf8688e0d46423c7d812001a8d9e0a9af0)
+atom_style      granular
+atom_modify     map array
+communicate     single vel yes
+
+boundary        m m m
+newton          off
+
+units           si
+
+region          reg block -0.03 0.03 -0.03 0.03 0. 1.0 units box
+create_box      2 reg
+Created orthogonal box = (-0.03 -0.03 0) to (0.03 0.03 1)
+  1 by 1 by 2 MPI processor grid
+
+neighbor        0.001 bin
+neigh_modify    delay 0
+
+# Material properties required for granular pair styles
+
+fix         m1 all property/global kn peratomtypepair 2 10000. 0.9 0.9 10000
+fix         m2 all property/global kt peratomtypepair 2 10000. 0.9 0.9 10000
+fix         m3 all property/global gamman_abs peratomtypepair 2 0.0041 0.0000012 0.0000012 0.000000036
+fix         m4 all property/global gammat_abs peratomtypepair 2 0.0041 0.0000012 0.0000012 0.000000036
+fix         m5 all property/global coefficientFriction peratomtypepair 2 0.3 0.3 0.3 0.3
+
+# pair style
+pair_style hybrid gran model hooke/stiffness tangential history absolute_damping on limitForce on hydro 5e-10
+pair_coeff * * gran
+pair_coeff 1 2 hydro 1e-6 6.26e2 0.5e-9
+
+# timestep, gravity
+timestep    0.000001
+fix         gravi all gravity 9.81 vector 0.0 0.0 -1.0
+
+# walls
+fix     cylinder all mesh/surface file meshes/cylinder.stl type 1
+fix     cylwalls all wall/gran model hooke/stiffness tangential history mesh n_meshes 1 meshes cylinder absolute_damping on
+
+# particle distributions and insertion
+
+create_atoms 2 single 0.0 0.0 0.1 units box
+Created 1 atoms
+create_atoms 1 single 0.0 0.0 0.1006 units box
+Created 1 atoms
+set atom 1 diameter 0.001 density 1.2 vx 0 vy 0 vz 0
+  1 settings made for diameter
+  1 settings made for density
+  1 settings made for vx
+  1 settings made for vy
+  1 settings made for vz
+set atom 2 diameter 0.0001 density 1400 vx 0 vy 0 vz 0
+  1 settings made for diameter
+  1 settings made for density
+  1 settings made for vx
+  1 settings made for vy
+  1 settings made for vz
+
+# apply nve integration to all particles that are inserted as single particles
+fix     integr all nve/sphere
+
+# screen output
+compute         rke all erotate/sphere
+thermo_style    custom step atoms ke c_rke vol
+thermo          1000
+thermo_modify   lost ignore norm no
+compute_modify  thermo_temp dynamic yes
+WARNING: Changing thermo_temp compute object. This object is deprecated and will be removed in the future. (../compute.cpp:141)
+
+# insert the first particles so that dump is not empty
+run         1
+Setting up run at Wed Jul 19 21:41:46 2017
+
+Memory usage per processor = 23.4161 Mbytes
+Step Atoms KinEng rke Volume 
+       0        2            0            0   0.00360036 
+       1        2 6.5505835e-20            0   0.00360036 
+Loop time of 4.81606e-05 on 2 procs for 1 steps with 2 atoms, finish time Wed Jul 19 21:41:46 2017
+
+
+Pair  time (%) = 1.90735e-06 (3.9604)
+Neigh time (%) = 0 (0)
+Comm  time (%) = 1.90735e-06 (3.9604)
+Outpt time (%) = 1.21593e-05 (25.2475)
+Other time (%) = 3.21865e-05 (66.8317)
+
+Nlocal:    1 ave 2 max 0 min
+Histogram: 1 0 0 0 0 0 0 0 0 1
+Nghost:    0 ave 0 max 0 min
+Histogram: 2 0 0 0 0 0 0 0 0 0
+Neighs:    0.5 ave 1 max 0 min
+Histogram: 1 0 0 0 0 0 0 0 0 1
+
+Total # of neighbors = 1
+Ave neighs/atom = 0.5
+Neighbor list builds = 0
+Dangerous builds = 0
+dump        dmp all custom 10000 post/dump*.liggghts_init id type x y z vx vy vz fx fy fz radius
+
+run         1 upto
+Setting up run at Wed Jul 19 21:41:46 2017
+
+Memory usage per processor = 23.4161 Mbytes
+Step Atoms KinEng rke Volume 
+       1        2 6.5505835e-20            0   0.00360036 
+Loop time of 9.53674e-07 on 2 procs for 0 steps with 2 atoms, finish time Wed Jul 19 21:41:46 2017
+
+
+Pair  time (%) = 0 (0)
+Neigh time (%) = 0 (0)
+Comm  time (%) = 0 (0)
+Outpt time (%) = 0 (0)
+Other time (%) = 9.53674e-07 (100)
+
+Nlocal:    1 ave 2 max 0 min
+Histogram: 1 0 0 0 0 0 0 0 0 1
+Nghost:    0 ave 0 max 0 min
+Histogram: 2 0 0 0 0 0 0 0 0 0
+Neighs:    0.5 ave 1 max 0 min
+Histogram: 1 0 0 0 0 0 0 0 0 1
+
+Total # of neighbors = 1
+Ave neighs/atom = 0.5
+Neighbor list builds = 0
+Dangerous builds = 0
+write_restart   post/restart/liggghts.restart

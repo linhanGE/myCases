@@ -1,0 +1,246 @@
+/*---------------------------------------------------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  1.4                                   |
+|   \\  /    A nd           | Web:      http://www.openfoam.org               |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+
+
+FoamFile
+{
+    version         2.0;
+    format          ascii;
+
+    root            "";
+    case            "";
+    instance        "";
+    local           "";
+
+    class           dictionary;
+    object          couplingProperties;
+}
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+//===========================================================================//
+// sub-models & settings
+
+modelType "A"; // A or B
+
+couplingInterval 1;
+
+voidFractionModel divided;//centre;//
+
+locateModel engineIB;//engineIB;
+
+meshMotionModel noMeshMotion;
+
+regionModel allRegion;
+
+IOModel trackIO;//basicIO;
+
+probeModel off;
+
+dataExchangeModel twoWayMPI;
+
+averagingModel dilute;//dilute;//
+
+clockModel standardClock;//off;
+
+smoothingModel off;// localPSizeDiffSmoothing;// constDiffSmoothing;//
+
+forceModels
+(
+        //GidaspowDrag
+	DiFeliceDragBubble
+	//KochHillDrag
+	//SchillerNaumannDrag
+        gradPForce
+        viscForce
+        Archimedes
+	//particleCellVolume
+	//volWeightedAverage
+	virtualMassForce
+        //checkCouplingInterval
+);
+
+/*momCoupleModels
+(
+    explicitCouple
+);*/
+
+momCoupleModels
+(
+    implicitCouple
+);
+
+//turbulenceModelType "RASProperties";//"LESProperties";//OFversion24x
+turbulenceModelType turbulenceProperties;//"LESProperties";//OFversion30x
+
+//===========================================================================//
+// sub-model properties
+
+implicitCoupleProps
+{
+    velFieldName "U";
+    granVelFieldName "Us";
+    voidfractionFieldName "voidfraction";
+}
+
+/*explicitCoupleProps
+{
+    fLimit (1e10 1e10 1e10);
+}*/
+
+constDiffSmoothingProps
+{
+    lowerLimit 0.1;
+    upperLimit 1e10;
+    smoothingLength 0.01;
+}
+
+volWeightedAverageProps
+{
+    useVolumeFraction true;
+    scalarFieldNames
+    (
+        ddtVoidfraction
+    );
+    vectorFieldNames
+    (
+    );
+    upperThreshold 1e20;
+    lowerThreshold 0;
+    writeToFile true;
+    verbose true;
+}
+	
+ArchimedesProps
+{
+    densityFieldName "rho";
+    gravityFieldName "g";
+}
+
+gradPForceProps
+{
+        pFieldName "p";
+        voidfractionFieldName "voidfraction";
+        velocityFieldName "U";
+	//treatForceExplicit true;
+	treatForceDEM       true;
+        //interpolation true;
+}
+
+particleCellVolumeProps
+{
+    upperThreshold 1e20;
+    lowerThreshold 0.;
+    verbose true;
+    writeToFile true;
+}
+
+viscForceProps
+{
+        velocityFieldName "U";
+	interpolation true;
+}
+
+KochHillDragProps
+{
+    //verbose true;
+    velFieldName "U";
+    voidfractionFieldName "voidfraction";
+    interpolation true;
+    implForceDEM true;
+}
+
+SchillerNaumannDragProps
+{
+    velFieldName "U";
+    densityFieldName "rho";
+	voidfractionFieldName "voidfraction";
+	granVelFieldName "Us";
+}
+
+totalMomentumExchangeProps
+{
+    implicitMomExFieldName "Ksl";
+    explicitMomExFieldName "none";
+    fluidVelFieldName "U";
+    granVelFieldName "Us";
+}
+
+DiFeliceDragBubbleProps
+{
+        //verbose true;
+        velFieldName "U";
+        voidfractionFieldName "voidfraction";
+        granVelFieldName "Us";
+	voidfractionInterpolationType   cell;
+	//UInterpolationType    cellPoint;
+	//treatForceExplicit true;
+	//implForceDEM true;
+	interpolation true;
+}
+
+GidaspowDragProps
+{
+    verbose true;
+    velFieldName "U";
+    voidfractionFieldName "voidfraction";
+    granVelFieldName "Us";
+    interpolation true;
+    phi 1;
+}
+
+virtualMassForceProps
+{
+    velFieldName "U";
+    densityFieldName "rho";
+    phiFieldName "phi";
+    splitUrelCalculation true;
+}
+
+checkCouplingIntervalProps
+{
+    warnOnly                    true;
+    velocityFieldName           U;
+    rhoP                        2300;
+    maxCFL                      1;
+    maxAccNr                    0.1;
+    UmaxExpected                0.42;
+    minAllowedVcellByVparcel    1.5;
+    timeInterval                0.0005;
+}
+
+twoWayFilesProps
+{
+    maxNumberOfParticles 10100;
+}
+
+engineProps
+{
+    treeSearch true;
+}
+
+engineIBProps
+{
+    treeSearch false;
+    zSplit 8;
+    xySplit 16;
+	
+}
+
+dividedProps
+{
+        alphaMin 0.3;
+	scaleUpVol 1.0;
+	procBoundaryCorrection true;
+}
+
+twoWayMPIProps
+{
+    liggghtsPath "../DEM/in.liggghts_run";
+}
+// ************************************************************************* //
